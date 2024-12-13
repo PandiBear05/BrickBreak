@@ -23,7 +23,9 @@ public class Brick {
 		this.y = y;
 		this.hp = hp;
 	}
-	
+	Color kirbyPink = new Color(223, 109, 169); 
+	Color kirbyPink2 = new Color(231,145,191); 
+	Color kirbyPink3 = new Color(239,182,212); 
 	
 	//getters and setters
 	public int getWidth() {
@@ -70,11 +72,11 @@ public class Brick {
 	//postcondition: the brick is drawn using the color corresponding to its HP value.
 	public void draw(Graphics g) {
 		if(hp >=3)
-		   g.setColor(Color.white);
+		g.setColor(kirbyPink);
 		else if(hp>=2)
-			g.setColor(Color.blue);
+			g.setColor(kirbyPink2);
 		else if(hp>=1)
-			g.setColor(Color.red);
+			g.setColor(kirbyPink3);
            g.fillRect(x, y, width, height);
 	}
 	

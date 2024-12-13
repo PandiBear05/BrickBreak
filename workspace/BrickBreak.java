@@ -22,6 +22,9 @@ import javax.swing.JPanel;
 
 public class BrickBreak extends JPanel implements KeyListener, ActionListener {
 
+
+	private boolean leftKey;
+	private boolean rightKey;
 	private boolean play = false;
 	private int score = 0;
 
@@ -45,7 +48,7 @@ public class BrickBreak extends JPanel implements KeyListener, ActionListener {
 		mapWidth = width;
 		mapHeight = height;
 		totalBricks = mapWidth * mapHeight;
-		player = new Paddle(310, 550, 100, 8);
+		player = new Paddle(100, 8, 310, 550);
 		ball = new Ball(350, 450, 20);
 
 		map = new Brick[mapHeight][mapWidth];
@@ -122,7 +125,7 @@ public class BrickBreak extends JPanel implements KeyListener, ActionListener {
 	//postcondition: detects collision between the ball and other surfaces and changes the ball's direction accordingly.
 	private void checkCollision() {
 
-		Rectangle ballHitBox = new Rectangle(ball.getXpos(), ball.getYpos(), ball.getSize(), ball.getSize());
+		Rectangle ballHitBox = new Rectangle(ball.getXpos(), ball.getYpos(), ball.getRadius(), ball.getRadius());
 		Rectangle playerHitBox = new Rectangle(player.getX(), player.getY(), player.getWidth(), player.getHeight());
 		
 		// paddle collision
@@ -145,8 +148,8 @@ public class BrickBreak extends JPanel implements KeyListener, ActionListener {
 					if (ballHitBox.intersects(brickHitBox)) {
 						map[i][j].hit();
 						score++;
-						if (ball.getXpos() + ball.getSize() <= map[i][j].getX()) {
-							ball.setX(map[i][j].getX()-ball.getSize() -1);
+						if (ball.getXpos() + ball.getRadius() <= map[i][j].getX()) {
+							ball.setX(map[i][j].getX()-ball.getRadius() -1);
 							ball.reverseX();
 						} else if(ball.getXpos() + 1 >= map[i][j].getX() + map[i][j].getWidth()) {
 							ball.setX(map[i][j].getX()+map[i][j].getWidth() +1);
@@ -167,7 +170,7 @@ public class BrickBreak extends JPanel implements KeyListener, ActionListener {
 		}
 
 		// wall collision
-		if (ball.getXpos() < 0 || ball.getXpos()+ball.getSize() > 682) {
+		if (ball.getXpos() < 0 || ball.getXpos()+ball.getRadius() > 682) {
 			ball.reverseX();
 		}
 		
@@ -194,6 +197,15 @@ public class BrickBreak extends JPanel implements KeyListener, ActionListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+			rightKey = false;
+			play = true;
+			player.setVelocity(3);	
+		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+			leftKey = false;
+			play = true;
+			player.setVelocity(-3);
+		}
 	}
 
 	@Override
@@ -204,20 +216,22 @@ public class BrickBreak extends JPanel implements KeyListener, ActionListener {
 	//postondition: paddle moves according to keys pressed (left/right). If the user presses enter the game is restarted.
 	@Override
 	public void keyPressed(KeyEvent e) {
+		
 		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+			rightKey= true;
 			play = true;
-			if (player.getVelocity() == 0)
-				player.addVelocity(8);
-			else {
-				player.addVelocity(4);
-			}
+			player.setVelocity(4);	
 		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+			leftKey = true;
 			play = true;
-			if (player.getVelocity() == 0)
-				player.addVelocity(-8);
-			else {
-				player.addVelocity(-4);
-			}
+			player.setVelocity(-4);
+		}
+
+		if (leftKey && rightKey ){
+			play = true;
+			player.setVelocity(0);	
+			leftKey = false;
+			rightKey = false;
 		}
 
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -229,7 +243,7 @@ public class BrickBreak extends JPanel implements KeyListener, ActionListener {
 			player.setX(310);
 			player.setVelocity(0);
 			score = 0;
-			totalBricks = 21;
+			totalBricks = mapWidth*mapHeight;
 			for (int i = 0; i < mapHeight; i++) {
 				for (int j = 0; j < mapWidth; j++) {
 					map[i][j] = new Brick(540 / mapWidth, 300 / mapHeight, j * (540 + xGap) / mapWidth + 80,
